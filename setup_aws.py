@@ -1,14 +1,26 @@
 import boto3
 import json
 from botocore.exceptions import ClientError
-
+ 
 # AWS configuration
 aws_profile = 'devi_profile'  # Name of the profile configured with aws configure
 aws_region = 'us-east-1'
 role_name = 'MyLambdaDynamoDBRole'
 lambda_function_name = 'MyHashtagFunction'
 dynamodb_table_name = 'Posts'
-lambda_zip_file = 'function.zip'  # Ensure you have this zip file ready
+lambda_zip_file = 'function.zip' 
+
+def main():
+    # Create IAM role
+    role_arn = create_iam_role()
+    if role_arn:
+        # Create DynamoDB table
+        create_dynamodb_table()
+        # Create Lambda function
+        create_lambda_function(role_arn)
+ # Ensure you have this zip file ready
+# Initialize AWS clients with profile
+
 
 # Initialize clients with profile
 session = boto3.Session(profile_name=aws_profile, region_name=aws_region)
@@ -81,7 +93,7 @@ def create_lambda_function(role_arn):
     try:
         response = lambda_client.create_function(
             FunctionName=lambda_function_name,
-            Runtime='python3.8',
+            Runtime='python3.12',
             Role=role_arn,
             Handler='lambda_function.lambda_handler',
             Code={'ZipFile': open(lambda_zip_file, 'rb').read()},
@@ -95,14 +107,7 @@ def create_lambda_function(role_arn):
     except ClientError as e:
         print(f"Error creating Lambda function: {e}")
 
-def main():
-    # Create IAM role
-    role_arn = create_iam_role()
-    if role_arn:
-        # Create DynamoDB table
-        create_dynamodb_table()
-        # Create Lambda function
-        create_lambda_function(role_arn)
+
 
 if __name__ == "__main__":
     main()
